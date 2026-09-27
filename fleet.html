@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FleetFlow - Logistics & Fleet Management</title>
+  <style>
+    :root {
+      --primary: #0f766e;
+      --secondary: #0d9488;
+      --bg: #f8fafc;
+      --text: #0f172a;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background-color: var(--bg);
+      color: var(--text);
+    }
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 15px 20px;
+      text-align: center;
+    }
+    .nav-tabs {
+      display: flex;
+      justify-content: center;
+      background-color: #1e293b;
+      gap: 10px;
+      padding: 10px;
+    }
+    .tab-btn {
+      background: transparent;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      border-radius: 6px;
+      transition: 0.3s;
+    }
+    .tab-btn.active, .tab-btn:hover { background-color: var(--primary); }
+    .container {
+      max-width: 1100px;
+      margin: 20px auto;
+      padding: 0 20px;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 20px;
+    }
+    .form-card, .table-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .form-group { margin-bottom: 12px; }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 9px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: var(--primary);
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+    button:hover { background-color: var(--secondary); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    th {
+      background-color: #f1f5f9;
+      color: var(--primary);
+    }
+    .badge {
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+    .badge-yellow { background: #fef9c3; color: #854d0e; }
+    .badge-green { background: #dcfce7; color: #166534; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h2>FleetFlow — Logistics & Fleet Management</h2>
+    <p style="margin:0; font-size: 0.9rem;">Task 5: Real-time Dispatch, Fleet Tracking & Driver App Portal</p>
+  </header>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('shipments')">Create Shipment</button>
+    <button class="tab-btn" onclick="switchTab('fleet')">Fleet & Drivers</button>
+    <button class="tab-btn" onclick="switchTab('tracking')">Driver Interface & Tracking</button>
+  </div>
+
+  <div class="container">
+
+    <!-- 1. CREATE SHIPMENT -->
+    <div id="shipments" class="tab-content active">
+      <div class="grid">
+        <div class="form-card">
+          <h3>Create New Shipment</h3>
+          <form onsubmit="addShipment(event)">
+            <div class="form-group"><label>Tracking ID / Cargo</label><input type="text" id="shipId" placeholder="e.g. SHP-9081" required></div>
+            <div class="form-group"><label>Pickup Location</label><input type="text" id="shipPickup" required></div>
+            <div class="form-group"><label>Destination</label><input type="text" id="shipDest" required></div>
+            <div class="form-group"><label>Assign Driver</label>
+              <select id="shipDriver">
+                <option value="Rajesh Kumar (Truck DL-01)">Rajesh Kumar (Truck DL-01)</option>
+                <option value="Vikram Singh (Van HR-26)">Vikram Singh (Van HR-26)</option>
+              </select>
+            </div>
+            <button type="submit">Dispatch Shipment</button>
+          </form>
+        </div>
+        <div class="table-card">
+          <h3>Active Logistics Shipments</h3>
+          <table>
+            <thead><tr><th>Shipment ID</th><th>Route</th><th>Assigned Driver</th></tr></thead>
+            <tbody id="shipmentTable">
+              <tr><td>SHP-1002</td><td>Delhi ➔ Mumbai</td><td>Rajesh Kumar (Truck DL-01)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. FLEET & DRIVERS -->
+    <div id="fleet" class="tab-content">
+      <div class="grid">
+        <div class="form-card">
+          <h3>Register Driver / Vehicle</h3>
+          <form onsubmit="addDriver(event)">
+            <div class="form-group"><label>Driver Name</label><input type="text" id="drvName" required></div>
+            <div class="form-group"><label>Vehicle Number & Type</label><input type="text" id="vehNo" placeholder="e.g. MH-04 Container Truck" required></div>
+            <button type="submit">Register to Fleet</button>
+          </form>
+        </div>
+        <div class="table-card">
+          <h3>Active Fleet Registry</h3>
+          <table>
+            <thead><tr><th>Driver</th><th>Vehicle Details</th></tr></thead>
+            <tbody id="fleetTable">
+              <tr><td>Rajesh Kumar</td><td>DL-01 Container Truck</td></tr>
+              <tr><td>Vikram Singh</td><td>HR-26 Delivery Van</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. DRIVER MOBILE & TRACKING INTERFACE -->
+    <div id="tracking" class="tab-content">
+      <div class="table-card">
+        <h3>Driver Mobile Portal & Real-time Live Status</h3>
+        <table>
+          <thead><tr><th>Shipment ID</th><th>Driver</th><th>Current Status</th><th>Action</th></tr></thead>
+          <tbody id="trackingTable">
+            <tr>
+              <td>SHP-1002</td>
+              <td>Rajesh Kumar</td>
+              <td><span class="badge badge-yellow" id="status-1002">In Transit</span></td>
+              <td><button style="padding: 4px 8px; font-size: 0.8rem;" onclick="updateStatus('1002')">Mark Delivered</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    function addShipment(e) {
+      e.preventDefault();
+      const id = document.getElementById('shipId').value;
+      const pickup = document.getElementById('shipPickup').value;
+      const dest = document.getElementById('shipDest').value;
+      const driver = document.getElementById('shipDriver').value;
+
+      const row = `<tr><td>${id}</td><td>${pickup} ➔ ${dest}</td><td>${driver}</td></tr>`;
+      document.getElementById('shipmentTable').innerHTML += row;
+
+      const trackRow = `
+        <tr>
+          <td>${id}</td>
+          <td>${driver}</td>
+          <td><span class="badge badge-yellow" id="status-${id}">In Transit</span></td>
+          <td><button style="padding: 4px 8px; font-size: 0.8rem;" onclick="updateStatus('${id}')">Mark Delivered</button></td>
+        </tr>`;
+      document.getElementById('trackingTable').innerHTML += trackRow;
+
+      e.target.reset();
+      alert('Shipment Dispatched!');
+    }
+
+    function addDriver(e) {
+      e.preventDefault();
+      const name = document.getElementById('drvName').value;
+      const vehicle = document.getElementById('vehNo').value;
+
+      const row = `<tr><td>${name}</td><td>${vehicle}</td></tr>`;
+      document.getElementById('fleetTable').innerHTML += row;
+
+      const opt = document.createElement('option');
+      opt.value = `${name} (${vehicle})`;
+      opt.innerText = `${name} (${vehicle})`;
+      document.getElementById('shipDriver').appendChild(opt);
+
+      e.target.reset();
+      alert('Fleet Member Registered!');
+    }
+
+    function updateStatus(id) {
+      const badge = document.getElementById(`status-${id}`);
+      if (badge) {
+        badge.className = 'badge badge-green';
+        badge.innerText = 'Delivered';
+      }
+    }
+  </script>
+</body>
+</html>
